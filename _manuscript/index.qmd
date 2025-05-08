@@ -1,0 +1,190 @@
+---
+title: ESS 330 Project Proposal
+authors:
+  - name: Sean Pearson, Nick Beegle
+    affiliation: The University
+    roles: writing
+    corresponding: true
+bibliography: references.bib
+execute:
+  echo: true
+---
+
+# Evaluating Water Quality and Flashiness Before and After Green Infrastructure Efforts in Portland, Oregon
+
+## 1.) Drafting the introduction, background, and motivation for our project 
+
+As urban areas grow, the expansion of impervious surfaces like roads, rooftops, and parking lots alters natural hydrologic processes by preventing water from soaking into the ground. Instead, stormwater rapidly runs off these surfaces into nearby streams and drainage systems. One major consequence is an increase in streamflow flashiness, which refers to how quickly streamflow rises and falls following precipitation events. Flashy stream systems are associated with higher flood risk, increased erosion, and degraded aquatic habitats (Walsh et al., 2005). This hydrologic instability poses serious ecological and management challenges for urban environments.
+
+To address these issues, many cities have begun implementing green infrastructure like bioswales, rain gardens, and permeable pavements which aim to restore natural water infiltration and reduce stormwater runoff. Portland, Oregon, is one of the leading U.S. cities in adopting green infrastructure solutions as part of its long term environmental planning. These systems are designed to capture, slow, and filter runoff before it reaches urban waterways, potentially reducing flashiness and improving watershed health.
+
+The goal of our project is to evaluate the effectiveness of Portland’s green infrastructure by analyzing how streamflow flashiness has changed over time in streams influenced by these interventions. We aim to assess whether green infrastructure is linked to measurable reductions in flashiness, and if so, how significant those reductions are.
+
+To do this, we will use publicly available environmental datasets. Specifically, we will:
+
+- Obtain land cover and impervious surface data for Portland from the National Land Cover Database (NLCD). These raster datasets, available for multiple years, allow us to track urban development and identify areas likely affected by green infrastructure projects.
+
+
+- Use daily streamflow data from the U.S. Geological Survey (USGS) for urban streams in Portland. These time series allow us to calculate the Richards-Baker Index, a widely used metric for quantifying streamflow flashiness (Baker et al., 2004). We will also need historical precipitation data which we will source from USGS precipitation gages that fall within the areas green infrastructure have been built.
+
+
+- Identify areas and timelines where green infrastructure was implemented, based on city planning documents and GIS data from Portland’s Bureau of Environmental Services.
+
+
+Our methodology will include calculating RBI for selected stream gauges for years 2003 and 2023, then comparing values before and after green infrastructure was installed. We will use the statistical programming language R to manage, analyze, and visualize the data. Key tools include:
+
+- dplyr and tidyr for cleaning and organizing data
+
+
+- ggplot2 for creating visualizations
+
+
+- linear models to test for significant changes in flashiness over time
+
+
+Our motivation for this project stems from the growing need to understand and manage the environmental consequences of urbanization. Traditional stormwater systems are often designed for efficiency rather than ecology, focusing on moving water away quickly instead of supporting healthy stream dynamics. Green infrastructure represents a promising alternative, but its effectiveness must be evaluated with data. As cities continue to expand and climate change increases the frequency of extreme weather, it is critical that planners and decision-makers have evidence-based insights into what kinds of infrastructure actually support resilient, sustainable watersheds.
+
+By assessing how stream flashiness has changed in Portland streams, our project contributes to this effort. If successful, our findings can help support further investment in green infrastructure and provide a model for other urban regions seeking to improve stormwater outcomes.
+
+#### References:
+
+Baker, David B., et al. “A New Flashiness Index: Characteristics and Applications to Midwestern Rivers and Streams.” Research Gate, Journal of the American Water Resources Association, Apr. 2004, www.researchgate.net/publication/227681885_A_New_Flashiness_Index_Characteristics_and_Applications_to_Midwestern_Rivers_and_Streams. 
+
+C.J, Walsh, et al. “The Urban Stream Syndrome: Current Knowledge and the Search for a Cure.” EPA, Environmental Protection Agency, 17 Jan. 2007, cfpub.epa.gov/si/si_public_record_report.cfm?Lab=NRMRL&dirEntryId=135328. 
+
+
+
+
+
+
+
+
+
+
+
+## 2.) Exploring our data
+
+
+```{r}
+#data retreival
+
+library(dataRetrieval)
+
+# Define parameters
+siteNumber <- "14211720"
+parameterCd <- "00060"  # Discharge, cubic feet per second
+startDate <- "2003-01-01"
+endDate <- "2023-12-31"
+
+# Download data
+flow_data <- readNWISdv(siteNumbers = siteNumber,
+                        parameterCd = parameterCd,
+                        startDate = startDate,
+                        endDate = endDate)
+
+# Clean column names
+flow_data <- renameNWISColumns(flow_data)
+
+# Save to CSV
+write.csv(flow_data, "data/streamflow_14211720.csv", row.names = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+```
+
+```{r}
+# Load streamflow data
+streamflow <- read_csv("data/streamflow_14211720.csv")
+
+# Load precipitation data
+precip <- read_csv("data/precip_2003_2023.csv")
+```
+
+```{r}
+streamflow <- streamflow %>%
+  mutate(Date = as.Date(Date))
+
+precip <- precip %>%
+  mutate(date = as.Date(date))
+```
+
+```{r}
+# Daily Streamflow for 2003
+plot_2003 <- streamflow %>%
+  filter(lubridate::year(Date) == 2003) %>%
+  ggplot(aes(x = Date, y = Flow)) +
+  geom_line(color = "steelblue") +
+  labs(title = "Daily Streamflow in 2003 (USGS 14211720)",
+       y = "Discharge (cfs)", x = "Date") +
+  theme_minimal()
+
+plot_2003
+```
+
+```{r}
+# Daily Streamflow for 2023
+plot_2023 <- streamflow %>%
+  filter(lubridate::year(Date) == 2023) %>%
+  ggplot(aes(x = Date, y = Flow)) +
+  geom_line(color = "darkgreen") +
+  labs(title = "Daily Streamflow in 2023 (USGS 14211720)",
+       y = "Discharge (cfs)", x = "Date") +
+  theme_minimal()
+
+plot_2023
+```
+
+```{r}
+#precip data
+precip_plot <- precip %>%
+  ggplot(aes(x = date, y = precip_mm)) +
+  geom_col(fill = "skyblue4") +
+  facet_wrap(~year(date), scales = "free_x", ncol = 1) +
+  labs(title = "Daily Precipitation in 2003 and 2023",
+       y = "Precipitation (mm)", x = "Date") +
+  theme_minimal()
+
+precip_plot
+```
+
+#### Data Exploration Summary:
+
+We looked at daily streamflow and precipitation data from 2003 and 2023 to spot any patterns or changes over time. The streamflow data came from USGS gage 14211720, and we pulled daily precipitation records from the same area.
+
+In 2003, streamflow peaked pretty high in the spring, over 150,000 cfs, and had several sharp spikes. In 2023, the peak flows were noticeably lower, staying under 100,000 cfs, but the seasonal pattern stayed about the same, with highs in the spring and again toward the end of the year.
+
+Precipitation in 2003 had more intense single day storms, especially early in the year. In 2023, rainfall was more spread out, with a lot of smaller events showing up in the fall. That shift could be affecting how quickly streams respond to rain, which ties into the idea of streamflow flashiness.
+
+Overall, these trends give us a helpful baseline to explore how things like land use or green infrastructure might be changing the way water moves through the system.
+
+
+
+## 3.) Identify our preliminary methods
+
+To understand how streamflow flashiness has changed before and after Portland implemented green infrastructure, we will use daily streamflow data from the USGS. For each stream, we’ll calculate the Richards-Baker Index each year, which measures how much streamflow fluctuates from day to day. Higher values mean the stream responds more rapidly to rain, which is typical in urban areas with a lot of runoff.
+
+We’ll focus on streams located near green infrastructure projects like bioswales and rain gardens. For each site, we’ll compare RBI values from before the green infrastructure was built to values from after construction. This will help us see whether green infrastructure is linked to lower flashiness over time.
+
+Our analysis will be done in R using tools like dplyr for data wrangling, ggplot2 for visualizing trends, and basic linear models to test if changes in flashiness are statistically significant.
+We also expect some challenges:
+
+- Some USGS gauges may not be located close enough to green infrastructure to detect an effect
+
+
+- Finding accurate timelines for when green infrastructure was installed may be difficult
+
+
+- Other factors like land use or rainfall changes might affect flashiness too
+
+
+- Streamflow data may have gaps or be inconsistent across sites
+
+
+Even with these challenges, our method gives us a way to evaluate if green infrastructure helps reduce urban stream flashiness, a key goal in sustainable stormwater management.
+
+
+
+
