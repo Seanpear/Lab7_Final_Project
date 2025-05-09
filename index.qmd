@@ -174,6 +174,31 @@ We also expect some challenges:
 
 Even with these challenges, our method gives us a way to evaluate if green infrastructure helps reduce urban stream flashiness, a key goal in sustainable stormwater management.
 
+## 4.) Methods
+
+To evaluate the impact of green infrastructure on streamflow flashiness in Portland, Oregon, we focused on data from two years: 2003 (pre-GI) and 2023 (post-GI). We used daily streamflow data from the USGS site 14211720 near the junction of the Willamette and Columbia Rivers. Streamflow flashiness was measured using the Richards-Baker Index (RBI), which quantifies how rapidly water levels rise and fall in response to precipitation events.
+
+We also obtained impervious surface data from the National Land Cover Database (NLCD) for both years to assess changes in land cover. This helped us determine whether changes in flashiness could be attributed to decreased imperviousness or to GI efforts.
+
+All data were analyzed using R. The dataRetrieval package was used to pull streamflow and precipitation data, and dplyr, tidyr, and ggplot2 were used for data cleaning, transformation, and visualization. Linear models helped us compare flashiness across the two years. While the chosen gauge is part of a larger watershed, it still provided valuable insight into broader hydrologic patterns over time.
+
+## 5.) Results
+
+Our analysis showed a very small decrease in impervious surface in our area of interest: from 50.54107% in 2003 to 50.46942% in 2023. This minor change suggests that land cover alone likely did not drive changes in streamflow behavior. It supports the idea that Portland was already heavily developed by 2003, limiting the potential for significant reductions in impervious surfaces.
+
+RBI values for 2023 were slightly lower than those in 2003, indicating a modest reduction in streamflow flashiness. This suggests that green infrastructure had a positive effect on slowing runoff and improving hydrologic stability, despite minimal change in land cover. Our visualizations of streamflow and rainfall showed fewer sharp peaks in discharge during storm events in 2023, though some flashiness still occurred during intense precipitation.
+
+## 6.) Discussion
+
+Our analysis showed a small decrease in streamflow flashiness from 2003 to 2023, even though the percentage of impervious surfaces barely changed. This points to green infrastructure as the likely reason for the improvement. Since land cover didn’t shift much, it makes sense that features like bioswales and eco-roofs helped slow runoff and reduce flashy stream responses.
+
+This is an encouraging finding for cities like Portland. It suggests that green infrastructure can still make a difference in managing stormwater, even in areas that are already fully developed. While the change in flashiness wasn’t huge, it shows that small scale projects, when used consistently, can have a measurable effect.
+
+There were a few limitations in our study. The stream gauge we used covers a large watershed, so it’s hard to say how much of the change was directly caused by local green infrastructure. Other factors like changes in rainfall or upstream land use could also have played a role.
+
+From a data science perspective, this project shows the value of using public datasets and tools like R to analyze environmental trends. We were able to pull and process years of hydrologic data and find patterns that would otherwise be hard to see. That said, working with real-world data can be tricky, especially when trying to link cause and effect.
+
+Moving forward, it would help to use more localized gauges, get better data on exactly where and when green infrastructure was installed, and explore other metrics like runoff timing or infiltration. It’ll also be important to see how these systems hold up as weather patterns shift with climate change.
 
 
 
